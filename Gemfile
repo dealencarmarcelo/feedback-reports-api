@@ -15,6 +15,10 @@ group :development, :test do
   gem "rspec-rails"
   gem "factory_bot_rails"
   gem "faker"
+  gem "shoulda-matchers"
+  gem "database_cleaner"
+  gem "database_cleaner-active_record"
+
   gem "pry-rails"
   gem "rubocop-rails-omakase", require: false
 

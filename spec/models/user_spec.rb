@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe User, type: :model do
   describe 'associations' do
-    it { should belong_to(:organization).with_foreign_key('organizatin_id') }
+    it { should belong_to(:organization) }
     it { should have_many(:feedbacks).with_foreign_key('reported_by_user_id') }
   end
 
