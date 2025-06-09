@@ -1,20 +1,22 @@
+# PostgreSQL configuration
 default: &default
   adapter: postgresql
   encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   username: postgres
   password: postgres
-  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+  host: localhost
+  port: 5432
 
 development:
   primary:
     <<: *default
     adapter: postgresql
-    database: feedback_reports_api_development
-
+    database: feedback_reports_api_clickhouse_development
   clickhouse:
     adapter: clickhouse
-    database: feedback_reports_api_clickhouse_development
-    host: localhost
+    database: default
+    host: clickhouse
     port: 8123
     username: default
     password: ""
@@ -24,19 +26,26 @@ test:
   primary:
     <<: *default
     adapter: postgresql
-    database: feedback_reports_api_test
-  
+    database: feedback_reports_api_clickhouse_test
   clickhouse:
     adapter: clickhouse
-    database: feedback_reports_api_clickhouse_test
-    host: localhost
+    database: default
+    host: clickhouse
     port: 8123
     username: default
     password: ""
     migrations_paths: db/migrate_clickhouse
 
 production:
-  <<: *default
-  database: feedback_reports_api_production
-  username: <%= ENV["FEEDBACK_REPORTS_API_DATABASE_USERNAME"] %>
-  password: <%= ENV["FEEDBACK_REPORTS_API_DATABASE_PASSWORD"] %>
+  primary:
+    <<: *default
+    database: myapp_production
+    username: <%= ENV['DATABASE_USERNAME'] %>
+    password: <%= ENV['DATABASE_PASSWORD'] %>
+  clickhouse:
+    adapter: clickhouse
+    database: <%= ENV['CLICKHOUSE_DATABASE'] || 'default' %>
+    host: <%= ENV['CLICKHOUSE_HOST'] || 'clickhouse' %>
+    port: <%= ENV['CLICKHOUSE_PORT'] || 8123 %>
+    username: <%= ENV['CLICKHOUSE_USERNAME'] || 'default' %>
+    password: <%= ENV['CLICKHOUSE_PASSWORD'] || '' %>
