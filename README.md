@@ -123,6 +123,7 @@ docker-compose logs -f web
 
 ### Pending Tasks
 
+- Fix rspec process
 - Add API documentation (e.g. Swagger)
 - Fix existing conflicts between databases in the hybrid structure.
 - Improve CI/CD flow.
