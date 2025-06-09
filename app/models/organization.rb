@@ -1,6 +1,7 @@
 class Organization < ApplicationRecord
   establish_connection :primary
   self.table_name = "organizations"
+  self.primary_key = :id
 
   has_many :feedbacks, dependent: :destroy
   has_many :feedback_results, through: :feedbacks
