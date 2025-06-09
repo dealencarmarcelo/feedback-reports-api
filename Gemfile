@@ -8,8 +8,9 @@ gem "pg", "~> 1.1"
 gem "puma"
 gem "bcrypt", "~> 3.1.7"
 gem "bootsnap", ">= 1.4.4", require: false
-gem "interactor"
-gem "kaminari"
+
+gem "blueprinter"
+gem "clickhouse-activerecord"
 
 group :development, :test do
   gem "rspec-rails"
