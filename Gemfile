@@ -9,8 +9,9 @@ gem "puma"
 gem "bcrypt", "~> 3.1.7"
 gem "bootsnap", ">= 1.4.4", require: false
 
-gem "blueprinter"
 gem "clickhouse-activerecord"
+
+gem "jsonapi-serializer"
 
 group :development, :test do
   gem "rspec-rails"
@@ -19,10 +20,10 @@ group :development, :test do
   gem "shoulda-matchers"
   gem "database_cleaner"
   gem "database_cleaner-active_record"
-
+  gem "timecop"
+  gem "simple_command"
   gem "pry-rails"
   gem "rubocop-rails-omakase", require: false
-
   gem "brakeman", require: false
 end
 

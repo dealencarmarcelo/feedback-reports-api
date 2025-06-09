@@ -77,7 +77,6 @@ GEM
     bcrypt (3.1.20)
     benchmark (0.4.1)
     bigdecimal (3.2.2)
-    blueprinter (1.1.2)
     bootsnap (1.18.6)
       msgpack (~> 1.2)
     brakeman (7.0.2)
@@ -126,6 +125,8 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     json (2.12.2)
+    jsonapi-serializer (2.2.0)
+      activesupport (>= 4.2)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     listen (3.9.0)
@@ -288,8 +289,10 @@ GEM
     securerandom (0.4.1)
     shoulda-matchers (6.5.0)
       activesupport (>= 5.2.0)
+    simple_command (1.0.1)
     stringio (3.1.7)
     thor (1.3.2)
+    timecop (0.9.10)
     timeout (0.4.3)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -316,7 +319,6 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt (~> 3.1.7)
-  blueprinter
   bootsnap (>= 1.4.4)
   brakeman
   clickhouse-activerecord
@@ -324,6 +326,7 @@ DEPENDENCIES
   database_cleaner-active_record
   factory_bot_rails
   faker
+  jsonapi-serializer
   listen (~> 3.3)
   pg (~> 1.1)
   pry-rails
@@ -332,6 +335,8 @@ DEPENDENCIES
   rspec-rails
   rubocop-rails-omakase
   shoulda-matchers
+  simple_command
+  timecop
 
 RUBY VERSION
    ruby 3.2.2p53
