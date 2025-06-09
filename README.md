@@ -1,45 +1,43 @@
 # Feedbacks Reports API
 
-API para gerenciamento de feedbacks de clientes da Incognia, com foco na listagem de resultados processados.
+API for managing customer feedbacks from Incognia, focused on listing processed results.
 
-## Principais Tecnologias Utilizadas
-
+## Main Technologies Used
 - Ruby 3.2.2
 - Rails 7
-- PostgreSQL 14 (Banco de dados primário)
-- Clickhouse (Banco de dados para consultas analíticas)
+- PostgreSQL 14 (Primary database)
+- Clickhouse (Database for analytical queries)
 
-## Configuração do Ambiente
-
-### Pré-requisitos
-
+## Environment Setup
+### Prerequisites
 - Docker
 - Docker Compose
 
-### Instalação
+### Installation
+1. Clone the repository
 
-1. Clone o repositório
 ```bash
 git clone https://github.com/dealencarmarcelo/feedback-reports-api.git
 cd feedback-reports-api
 ```
 
-2. Inicie os containers
+2. Start the containers
 ```bash
 docker-compose up --build
 ```
 
-A aplicação estará disponível em `http://localhost:3000`
+The application will be available at `http://localhost:3000`
 
-## Arquitetura
+## Architecture
 
-O projeto utiliza uma arquitetura otimizada para alta performance com:
+The project uses an architecture optimized for high performance with:
 
-- **PostgreSQL com Replicação**: 
-  - PostgreSQL (Organization, User): porta 5432
-  - Clickhouse (Feedback, FeedbackResult): porta 8123
-- **Redis**: Cache e filas do Sidekiq
-- **Sidekiq**: Processamento assíncrono de feedbacks em massa
+- **Banco de dados**: 
+  - PostgreSQL (Organization, User): port 5432
+  - Clickhouse (Feedback, FeedbackResult): port 8123
+- **API Only**: Exposes only JSON endpoints; no MVC views. Models represent entities, and serializers format JSON
+responses.
+- **Service Objects**: Handle complex business logic outside controllers/models.
 
 ## Endpoints
 
@@ -51,14 +49,14 @@ Content-Type: application/json
 ```
 
 Parâmetros de Query:
-- `organization_id` (obrigatório): ID da organização
-- `page_size`: Itens por página (default: 25)
-- `account_ids[]`: Filtrar por IDs de conta
-- `feedback_types[]`: Filtrar por tipos de feedback (verified, reset, account_takeover, identity_fraud)
-- `date_range[start_date]`: Data inicial (formato: YYYY-MM-DD)
-- `date_range[end_date]`: Data final (formato: YYYY-MM-DD)
-- `date_type`: Tipo de data para filtro (feedback_time)
-- `encoded_installation_ids[]`: Filtrar por IDs de instalação codificados
+- `organization_id` (required): Organization ID
+- `page_size`:  Items per page (default: 25)
+- `account_ids[]`: Filter by account IDs
+- `feedback_types[]`: Filter by feedback types (verified, reset, account_takeover, identity_fraud)
+- `date_range[start_date]`: Start date (format: YYYY-MM-DD)
+- `date_range[end_date]`: End date (format: YYYY-MM-DD)
+- `date_type`: Type of date to filter (feedback_time)
+- `encoded_installation_ids[]`: Filter by encoded installation IDs
 
 Response (200 OK):
 ```json
@@ -93,13 +91,13 @@ Response (200 OK):
 
 ## Otimizações
 
-### Banco de Dados
-- Utilização de uma arquitetura híbrida de PostgreSQL com Clickhouse:
-  - A ideia é poder lidar de forma separada com a massa de dados e consultas analíticas.
-  - Enquanto o Postgresql lida com registros de usuários e organizações, o Clickhouse é responsável por lidar com feedbacks e feedback_results que movimentam 300M de dados mensais.
+### Database
+- Uses a hybrid architecture with PostgreSQL and Clickhouse:
+  - The idea is to separate transactional data from analytical queries.
+  - While PostgreSQL manages user and organization records, Clickhouse handles feedbacks and feedback_results, which process around 300M records per month.
 
-> A arquitetura híbrida foi pensada para otimizar as consultas em cenários futuros onde os dados ultrapassarão 1B de registros.
-> Durante testes de carga o Clickhouse demonstrou uma performance muito melhor para esse tipo de abordagem.
+> The hybrid architecture was designed to optimize queries in future scenarios where data volume exceeds 1B records.
+> During load testing, Clickhouse showed significantly better performance for this use case.
 
 
 ## Desenvolvimento
@@ -123,15 +121,14 @@ docker-compose run --rm web rails console
 docker-compose logs -f web
 ```
 
-### Pendencias
+### Pending Tasks
 
-- Corrigir conflitos existentes entre os bancos de dados da estrutura híbrida.
-- Aprimorar fluxo de CI/CD.
-- Aprimorar cenários de testes.
-- Adicionar filtro por processed_time.
-  - Foi removido devido a conflitos na configuração dos bancos de dados da estrutura híbrida.
+- Fix existing conflicts between databases in the hybrid structure.
+- Improve CI/CD flow.
+- Improve test coverage.
+- Add filtering by processed_time.
+    > It was removed due to database configuration conflicts in the hybrid structure.
 
-### Diferenças da documentação inicial
-
-- Foi notado após alguns testes de carga que o PostgreSQL poderia ser uma boa opção para o início, porém com o aumento da carga de registros diários, as consultas nesse banco passaram a ficar lentas, indo de encontro com o requisito de performance.
-- Foi escolhido utilizar o Clickhouse como banco colunar pensando na alta carga de dados nos fluxos de leitura e filtragem, devido a sua ótima performance em cenários como esse.
+### Differences from the Initial Documentation
+- After load testing, it was observed that PostgreSQL could work well initially, but as daily record volume increased, queries became slower, conflicting with performance requirements.
+- Clickhouse was chosen as a columnar database for handling high data volumes in read/filter flows, thanks to its excellent performance in such scenarios.
