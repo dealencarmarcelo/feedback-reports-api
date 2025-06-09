@@ -1,20 +1,12 @@
-class FeedbackSerializer
-  include JSONAPI::Serializer
-
+class FeedbackSerializer < ActiveModel::Serializer
   attributes :id, :organization_id, :reported_by_user_id, :account_id,
          :installation_id, :encoded_installation_id, :feedback_type,
-         :feedback_time
+         :feedback_time, :feedback_type_label
 
-  attribute :reported_by do |object|
-    p User.find_by(id: object.reported_by_user_id)
-    object&.user&.name || "N/A"
-  end
+  belongs_to :user
+  has_one :feedback_result
 
-  attribute :affected_devices do |object|
-    object.feedback_result.affected_devices
-  end
-
-  attribute :estimated_affected_accounts do |object|
-    object.feedback_result.estimated_affected_accounts
+  def feedback_type_label
+    object.feedback_type.titleize
   end
 end

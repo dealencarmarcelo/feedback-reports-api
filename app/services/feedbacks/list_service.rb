@@ -3,7 +3,7 @@ module Feedbacks
     attr_reader :organization_id, :filters, :page_size, :cursor
     attr_accessor :errors
 
-    DEFAULT_PAGE_SIZE = 500
+    DEFAULT_PAGE_SIZE = 50
 
     def initialize(organization_id:, filters: {}, page_size: nil, cursor: nil)
       @organization_id = organization_id
@@ -74,13 +74,13 @@ module Feedbacks
       Feedback
         .includes(:feedback_result, :user)
         .where(organization_id: organization_id)
-      # .select('feedbacks.*, feedback_results.*, users.name as reporter_name')
     end
 
     def apply_filters(query)
       query = apply_id_filters(query)
       query = apply_feedback_type_filter(query)
       query = apply_date_filter(query)
+      query = apply_encoded_installation_ids_filter(query)
       query
     end
 
@@ -102,12 +102,22 @@ module Feedbacks
       query.where(feedback_type: filters[:feedback_types])
     end
 
+    def apply_encoded_installation_ids_filter(query)
+      return query unless filters[:encoded_installation_ids].present?
+
+      query.where(encoded_installation_id: filters[:encoded_installation_ids])
+    end
+
     def apply_date_filter(query)
       return query unless filters[:start_date].present? && filters[:end_date].present?
 
-      date_column = filters[:date_type] == "processed_time" ?
-        "feedback_results.processed_time" :
-        "feedbacks.feedback_time"
+      # FIXME conflicts with psql and clickhouse dbs
+
+      # date_column = filters[:date_type] == "processed_time" ?
+      #   "feedback_results.processed_time" :
+      #   "feedbacks.feedback_time"
+
+      date_column = "feedbacks.feedback_time"
 
       query.where("#{date_column} BETWEEN ? AND ?",
         Time.zone.parse(filters[:start_date]).beginning_of_day,
@@ -125,9 +135,7 @@ module Feedbacks
     def build_meta(feedbacks)
       {
         page_size: page_size,
-        cursor: feedbacks.last.feedback_time
-        # has_more: has_more?,
-        # total: total_count
+        cursor: feedbacks.last&.feedback_time
       }
     end
 
