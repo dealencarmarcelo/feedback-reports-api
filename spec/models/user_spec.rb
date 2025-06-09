@@ -7,7 +7,8 @@ RSpec.describe User, type: :model do
   end
 
   describe 'validations' do
-    subject { build(:user) }
+    let(:organization) { create(:organization) }
+    subject { build(:user, organization: organization) }
 
     it { should validate_presence_of(:name) }
     it { should validate_presence_of(:email) }

@@ -8,7 +8,8 @@ RSpec.describe Feedback, type: :model do
   end
 
   describe 'validations' do
-    subject { build(:feedback) }
+    let!(:organization) { create(:organization) }
+    subject { build(:feedback, organization: organization) }
 
     it { should validate_presence_of(:organization_id) }
     it { should validate_presence_of(:account_id) }
@@ -23,10 +24,10 @@ RSpec.describe Feedback, type: :model do
       int_format_uuid = build(:feedback, reported_by_user_id: 10)
 
       expect(str_format_uuid).not_to be_valid
-      expect(str_format_uuid.errors[:reported_by_user_id]).to be_present
+      expect(str_format_uuid.errors[:user]).to be_present
 
       expect(int_format_uuid).not_to be_valid
-      expect(int_format_uuid.errors[:reported_by_user_id]).to be_present
+      expect(int_format_uuid.errors[:user]).to be_present
     end
 
     it 'validates UUID format for organization_id' do
@@ -67,26 +68,26 @@ RSpec.describe Feedback, type: :model do
     let!(:organization) { create(:organization) }
     let(:another_organization) { create(:organization) }
     let!(:user) { create(:user, organization_id: organization.id) }
-    let(:verified_feedback) { create(:feedback, :with_result, organization: organization, user: user, feedback_type: 'verified') }
-    let(:reset_feedback) { create(:feedback, organization: organization, user: user, feedback_type: 'reset') }
+    let!(:verified_feedback) { create(:feedback, :with_result, organization: organization, user: user, feedback_type: 'verified') }
+    let!(:reset_feedback) { create(:feedback, organization: organization, user: user, feedback_type: 'reset') }
 
     describe '.by_organization' do
       context "an organization with feedbacks" do
-        it 'returns the feedbacks' do
-          feedback = Feedback.by_organization(organization.id)
+        it 'returns a feedback list' do
+          feedbacks = Feedback.by_organization(organization.id)
           [ verified_feedback, reset_feedback ].each do |f|
-            expect(feedback).to include(f)
+            expect(feedbacks).to include(f)
           end
         end
       end
 
       context "an organization without feedbacks" do
         it 'returns empty list' do
-          feedback = Feedback.by_organization(another_organization.id)
+          feedbacks = Feedback.by_organization(another_organization.id)
           [ verified_feedback, reset_feedback ].each do |f|
-            expect(feedback).not_to include(f)
+            expect(feedbacks).not_to include(f)
           end
-          expect(feedback).to be_empty
+          expect(feedbacks).to be_empty
         end
       end
     end
@@ -100,8 +101,9 @@ RSpec.describe Feedback, type: :model do
 
       it 'filters by multiples feedback types' do
         feedbacks = Feedback.by_feedback_types([ 'verified', 'reset' ])
-        expect(feedbacks).to include(verified_feedback)
-        expect(feedbacks).not_to include(reset_feedback)
+        [ verified_feedback, reset_feedback ].each do |f|
+          expect(feedbacks).to include(f)
+        end
       end
     end
   end

@@ -8,14 +8,9 @@ FactoryBot.define do
     feedback_type { 'verified' }
     feedback_time { Time.current }
 
-    after(:build) do |feedback|
-      create(:organization_user, organization: feedback.organization, user: feedback.user) unless
-        OrganizationUser.exists?(organization: feedback.organization, user: feedback.user)
-    end
-
     trait :with_result do
-      after(:create) do |feedback|
-        create(:feedback_result, feedback: feedback)
+      after(:create) do |f|
+        create(:feedback_result, feedback: f)
       end
     end
 
