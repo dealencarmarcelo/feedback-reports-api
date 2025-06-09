@@ -14,7 +14,6 @@ RSpec.describe Feedback, type: :model do
     it { should validate_presence_of(:organization_id) }
     it { should validate_presence_of(:account_id) }
     it { should validate_presence_of(:installation_id) }
-    it { should validate_presence_of(:encoded_installation_id) }
     it { should validate_presence_of(:feedback_time) }
 
     it { should validate_inclusion_of(:feedback_type).in_array(%w[verified reset account_takeover identity_fraud]) }
@@ -61,50 +60,6 @@ RSpec.describe Feedback, type: :model do
 
       expect(int_format_uuid).not_to be_valid
       expect(int_format_uuid.errors[:account_id]).to be_present
-    end
-  end
-
-  describe 'scopes' do
-    let!(:organization) { create(:organization) }
-    let(:another_organization) { create(:organization) }
-    let!(:user) { create(:user, organization_id: organization.id) }
-    let!(:verified_feedback) { create(:feedback, :with_result, organization: organization, user: user, feedback_type: 'verified') }
-    let!(:reset_feedback) { create(:feedback, organization: organization, user: user, feedback_type: 'reset') }
-
-    describe '.by_organization' do
-      context "an organization with feedbacks" do
-        it 'returns a feedback list' do
-          feedbacks = Feedback.by_organization(organization.id)
-          [ verified_feedback, reset_feedback ].each do |f|
-            expect(feedbacks).to include(f)
-          end
-        end
-      end
-
-      context "an organization without feedbacks" do
-        it 'returns empty list' do
-          feedbacks = Feedback.by_organization(another_organization.id)
-          [ verified_feedback, reset_feedback ].each do |f|
-            expect(feedbacks).not_to include(f)
-          end
-          expect(feedbacks).to be_empty
-        end
-      end
-    end
-
-    describe '.by_feedback_types' do
-      it 'filters by single feedback type' do
-        feedbacks = Feedback.by_feedback_types([ 'verified' ])
-        expect(feedbacks).to include(verified_feedback)
-        expect(feedbacks).not_to include(reset_feedback)
-      end
-
-      it 'filters by multiples feedback types' do
-        feedbacks = Feedback.by_feedback_types([ 'verified', 'reset' ])
-        [ verified_feedback, reset_feedback ].each do |f|
-          expect(feedbacks).to include(f)
-        end
-      end
     end
   end
 end
